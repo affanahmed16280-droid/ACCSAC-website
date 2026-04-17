@@ -198,7 +198,7 @@ footer{background:rgba(5,10,20,0.95);border-top:1px solid var(--border);padding:
   </div>
   <div class="stats-bar">
     <div class="stat"><div class="stat-num" id="cnt-members">—</div><div class="stat-label">Active Members</div></div>
-    <div class="stat"><div class="stat-num">2024</div><div class="stat-label">Established</div></div>
+    <div class="stat"><div class="stat-num">2026</div><div class="stat-label">Established</div></div>
     <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Stars to Explore</div></div>
   </div>
   <div class="college-info">
@@ -274,7 +274,7 @@ footer{background:rgba(5,10,20,0.95);border-top:1px solid var(--border);padding:
   <div id="reg-form-wrap" class="form-wrap">
     <div class="form-grid">
       <div class="form-group"><label>Full Name *</label><input id="f-name" type="text" placeholder="Your full name"></div>
-      <div class="form-group"><label>Student Roll *</label><input id="f-roll" type="text" placeholder="e.g. 202401001"></div>
+      <div class="form-group"><label>Student Roll *</label><input id="f-roll" type="text" placeholder="e.g. 250000"></div>
       <div class="form-group"><label>Class *</label>
         <select id="f-class">
           <option value="">Select class</option>
@@ -309,7 +309,7 @@ footer{background:rgba(5,10,20,0.95);border-top:1px solid var(--border);padding:
     <div class="form-wrap" style="max-width:300px;padding:1.8rem;">
       <div class="form-group" style="margin-bottom:1rem;">
         <label>Roll Number or Member ID</label>
-        <input id="id-lookup" type="text" placeholder="e.g. 202401001 or ACC-SAC-001" onkeydown="if(event.key==='Enter')lookupID()">
+        <input id="id-lookup" type="text" placeholder="e.g. 250000 or ACC-SAC-001" onkeydown="if(event.key==='Enter')lookupID()">
       </div>
       <button class="btn btn-gold" style="width:100%;" onclick="lookupID()">🪪 Generate My ID Card</button>
     </div>
@@ -336,7 +336,7 @@ footer{background:rgba(5,10,20,0.95);border-top:1px solid var(--border);padding:
             <div class="id-status">✔ ACTIVE MEMBER</div>
           </div>
           <div style="text-align:right;">
-            <div class="id-valid">Session 2024–2025</div>
+            <div class="id-valid">Session 2025–2026</div>
             <div style="font-size:9px;color:var(--muted);margin-top:2px;" id="idc-joined">—</div>
           </div>
         </div>
@@ -586,7 +586,7 @@ async function downloadID(){
     doc.text('Phone: '+document.getElementById('idc-phone').textContent,5,40);
     doc.text(document.getElementById('idc-joined').textContent,5,45);
     doc.setTextColor(77,255,136);doc.setFontSize(5.5);doc.text('✔ ACTIVE MEMBER',5,50);
-    doc.setTextColor(240,192,64);doc.text('Session 2024-2025',81,50,{align:'right'});
+    doc.setTextColor(240,192,64);doc.text('Session 2025-2026',81,50,{align:'right'});
     doc.setDrawColor(30,50,90);doc.setLineWidth(0.2);doc.line(1,49,85,49);
     doc.setTextColor(100,130,160);doc.setFontSize(4.5);
     doc.text(document.getElementById('idc-barcode').textContent,5,53);
