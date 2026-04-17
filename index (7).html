@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACC Space & Astrophysics Club</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--gold:#f0c040;--deep:#050a14;--glow:#4fa3e0;--text:#e8f4ff;--muted:#8ab4d4;--card:rgba(10,25,60,0.82);--border:rgba(79,163,224,0.25);--success:#4dff88;--danger:#ff6b6b;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Exo 2',sans-serif;background:var(--deep);color:var(--text);min-height:100vh;overflow-x:hidden;}
+#stars-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+.solar-bg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:900px;height:900px;z-index:0;pointer-events:none;opacity:0.15;}
+.orbit{position:absolute;border-radius:50%;border:1px solid rgba(79,163,224,0.35);top:50%;left:50%;transform:translate(-50%,-50%);}
+.orbit-1{width:120px;height:120px;}.orbit-2{width:220px;height:220px;animation:spin 8s linear infinite;}.orbit-3{width:340px;height:340px;animation:spin 14s linear infinite;}.orbit-4{width:480px;height:480px;animation:spin 22s linear infinite;}.orbit-5{width:640px;height:640px;animation:spin 36s linear infinite;}.orbit-6{width:820px;height:820px;animation:spin 52s linear infinite;}
+.sun{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,#fffbe0 0%,#f0c040 40%,#e07010 100%);box-shadow:0 0 40px 15px rgba(240,192,64,0.4);}
+.planet{position:absolute;border-radius:50%;top:-6px;left:50%;margin-left:-6px;width:12px;height:12px;}
+.p1{background:#b0b0b0;width:8px;height:8px;top:-4px;margin-left:-4px;}.p3{background:#4080d0;}.p4{background:#c05030;}.p5{background:#e0b080;width:18px;height:18px;top:-9px;margin-left:-9px;}.p6{background:#d8c080;width:16px;height:16px;top:-8px;margin-left:-8px;}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+.page{position:relative;z-index:1;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;background:rgba(5,10,20,0.94);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.nav-logo img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid var(--border);}
+.nav-title{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--gold);letter-spacing:1px;line-height:1.4;}
+.nav-links{display:flex;gap:1.8rem;list-style:none;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;transition:color 0.2s;}
+.nav-links a:hover{color:var(--gold);}
+.nav-actions{display:flex;gap:10px;}
+.btn{padding:8px 18px;border-radius:4px;font-size:12px;font-family:'Orbitron',sans-serif;font-weight:700;cursor:pointer;text-decoration:none;letter-spacing:1px;transition:all 0.2s;border:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
+.btn-outline{background:transparent;border:1px solid var(--glow);color:var(--glow);}
+.btn-outline:hover{background:var(--glow);color:#000;}
+.btn-gold{background:var(--gold);color:#000;}
+.btn-gold:hover{background:#ffe080;}
+.btn-sm{padding:6px 12px;font-size:10px;}
+.btn-danger{background:transparent;border:1px solid var(--danger);color:var(--danger);}
+.btn-danger:hover{background:var(--danger);color:#fff;}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 2rem 4rem;}
+.hero-badge{display:inline-block;background:rgba(79,163,224,0.1);border:1px solid var(--border);color:var(--glow);font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:6px 20px;border-radius:20px;margin-bottom:2rem;}
+.hero h1{font-family:'Orbitron',sans-serif;font-size:clamp(2rem,6vw,4.5rem);font-weight:900;line-height:1.1;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,var(--gold) 50%,var(--glow) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{font-size:1.05rem;color:var(--muted);max-width:580px;line-height:1.7;margin-bottom:2.5rem;}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;}
+.stats-bar{display:flex;gap:3rem;flex-wrap:wrap;margin-top:3rem;justify-content:center;}
+.stat{text-align:center;}
+.stat-num{font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:900;color:var(--gold);}
+.stat-label{font-size:11px;color:var(--muted);letter-spacing:2px;margin-top:4px;}
+.college-info{margin-top:2.5rem;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;border-top:1px solid var(--border);padding-top:2rem;}
+.college-info img{width:36px;height:36px;border-radius:50%;object-fit:cover;}
+section{padding:5rem 2rem;max-width:1200px;margin:0 auto;}
+.section-label{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--glow);margin-bottom:6px;}
+.section-title{font-family:'Orbitron',sans-serif;font-size:clamp(1.4rem,3vw,2.2rem);font-weight:700;margin-bottom:1rem;color:#fff;}
+.section-sub{color:var(--muted);max-width:560px;line-height:1.7;margin-bottom:3rem;font-size:14px;}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.8rem;transition:border-color 0.2s,transform 0.2s;}
+.card:hover{border-color:var(--glow);transform:translateY(-3px);}
+.card-icon{font-size:1.8rem;margin-bottom:1rem;background:rgba(79,163,224,0.1);width:50px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.card h3{font-family:'Orbitron',sans-serif;font-size:12px;margin-bottom:8px;color:var(--gold);}
+.card p{color:var(--muted);font-size:13px;line-height:1.6;}
+.mods-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1.5rem;}
+.mod-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;transition:border-color 0.2s;}
+.mod-card:hover{border-color:var(--gold);}
+.mod-img{width:86px;height:86px;border-radius:50%;object-fit:cover;border:2px solid var(--border);margin:0 auto 1rem;background:rgba(79,163,224,0.1);display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;}
+.mod-img img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.mod-name{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--gold);margin-bottom:4px;}
+.mod-role{color:var(--muted);font-size:12px;}
+.notices-list{display:flex;flex-direction:column;gap:1rem;}
+.notice-item{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--glow);border-radius:8px;padding:1.2rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;}
+.notice-date{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--glow);min-width:66px;text-align:center;background:rgba(79,163,224,0.1);border-radius:6px;padding:6px 4px;line-height:1.5;white-space:pre-line;}
+.notice-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.notice-body{font-size:13px;color:var(--muted);}
+.form-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:640px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group.full{grid-column:1/-1;}
+label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+input,select,textarea{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;padding:10px 14px;color:var(--text);font-size:13px;font-family:'Exo 2',sans-serif;outline:none;transition:border-color 0.2s;width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--glow);}
+select option{background:#0a1830;}
+textarea{resize:vertical;}
+.principal-card{background:var(--card);border:1px solid rgba(240,192,64,0.3);border-radius:16px;padding:2rem;display:flex;gap:2rem;align-items:center;max-width:720px;}
+.principal-img-wrap{flex-shrink:0;width:140px;height:168px;border-radius:10px;overflow:hidden;border:2px solid rgba(240,192,64,0.4);}
+.principal-img-wrap img{width:100%;height:100%;object-fit:cover;}
+.p-title{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;color:var(--glow);margin-bottom:8px;}
+.p-name{font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--gold);margin-bottom:4px;}
+.p-rank{font-size:12px;color:var(--muted);margin-bottom:1rem;}
+.p-msg{font-size:13px;color:var(--muted);line-height:1.8;font-style:italic;}
+.id-card{width:360px;background:linear-gradient(135deg,#050e20 0%,#0d1e3c 50%,#081428 100%);border:1.5px solid var(--gold);border-radius:16px;padding:1.5rem;box-shadow:0 0 30px rgba(240,192,64,0.12);position:relative;overflow:hidden;flex-shrink:0;}
+.id-card::before{content:'';position:absolute;top:-50px;right:-50px;width:140px;height:140px;border-radius:50%;background:rgba(79,163,224,0.05);border:1px solid rgba(79,163,224,0.1);}
+.id-card::after{content:'';position:absolute;bottom:-40px;left:-40px;width:100px;height:100px;border-radius:50%;background:rgba(240,192,64,0.04);border:1px solid rgba(240,192,64,0.08);}
+.id-hdr{display:flex;align-items:center;gap:10px;margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid rgba(240,192,64,0.2);}
+.id-hdr img{width:34px;height:34px;border-radius:50%;object-fit:cover;}
+.id-hdr-txt{font-family:'Orbitron',sans-serif;font-size:8px;color:var(--gold);line-height:1.6;letter-spacing:0.5px;}
+.id-body{display:flex;gap:1rem;margin-bottom:1rem;}
+.id-photo{width:82px;height:96px;border-radius:8px;background:rgba(79,163,224,0.12);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:2.2rem;flex-shrink:0;overflow:hidden;}
+.id-photo img{width:100%;height:100%;object-fit:cover;}
+.id-name{font-family:'Orbitron',sans-serif;font-size:13px;color:#fff;margin-bottom:3px;}
+.id-mid{font-size:11px;color:var(--glow);margin-bottom:10px;font-family:'Orbitron',sans-serif;}
+.id-row{font-size:11px;color:var(--muted);line-height:2.1;}
+.id-row span{color:var(--text);font-weight:600;}
+.id-ftr{margin-top:1rem;padding-top:0.8rem;border-top:1px solid rgba(240,192,64,0.2);display:flex;align-items:center;justify-content:space-between;}
+.id-barcode{font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);letter-spacing:2px;}
+.id-valid{font-size:10px;color:var(--gold);}
+.id-status{font-size:10px;color:var(--success);margin-top:2px;}
+.admin-wrap{background:var(--card);border:1px solid rgba(240,192,64,0.25);border-radius:16px;padding:2.5rem;max-width:400px;}
+.admin-icon{width:60px;height:60px;border-radius:50%;background:rgba(240,192,64,0.1);border:1px solid rgba(240,192,64,0.3);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:1.5rem;}
+.tabs{display:flex;gap:0;margin-bottom:2rem;border-bottom:1px solid var(--border);overflow-x:auto;}
+.tab-btn{background:none;border:none;color:var(--muted);font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px;cursor:pointer;padding:10px 16px;position:relative;transition:color 0.2s;white-space:nowrap;text-transform:uppercase;}
+.tab-btn.active{color:var(--gold);}
+.tab-btn.active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--gold);}
+.tab-content{display:none;}.tab-content.active{display:block;}
+.member-row{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:0.8rem;}
+.member-name{font-family:'Orbitron',sans-serif;font-size:12px;color:var(--gold);margin-bottom:4px;}
+.member-meta{font-size:12px;color:var(--muted);}
+.member-reason{font-size:11px;color:var(--muted);font-style:italic;margin-top:4px;}
+.member-actions{display:flex;gap:8px;flex-shrink:0;}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-family:'Orbitron',sans-serif;letter-spacing:1px;}
+.badge-approved{background:rgba(77,255,136,0.1);color:var(--success);border:1px solid rgba(77,255,136,0.2);}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 2rem;}
+.loading-spinner{display:flex;align-items:center;justify-content:center;padding:3rem;color:var(--muted);font-size:13px;gap:10px;}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--glow);border-radius:50%;animation:rotate 0.8s linear infinite;}
+@keyframes rotate{to{transform:rotate(360deg);}}
+footer{background:rgba(5,10,20,0.95);border-top:1px solid var(--border);padding:3rem 2rem;text-align:center;color:var(--muted);font-size:13px;}
+.footer-logo{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--gold);margin-bottom:8px;}
+#toast{position:fixed;bottom:2rem;right:2rem;background:rgba(10,25,60,0.97);border:1px solid var(--glow);border-radius:10px;padding:1rem 1.5rem;color:var(--text);font-size:13px;z-index:300;transform:translateY(120px);transition:transform 0.3s;max-width:320px;}
+#toast.show{transform:translateY(0);}
+#toast.error{border-color:var(--danger);}
+.success-screen{display:none;text-align:center;padding:3rem 2rem;}
+.success-screen.show{display:block;}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none;}
+.hamburger span{width:22px;height:2px;background:var(--text);display:block;}
+.mob-nav{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(5,10,20,0.99);padding:1.5rem 2rem;z-index:99;border-bottom:1px solid var(--border);flex-direction:column;gap:1rem;}
+.mob-nav.open{display:flex;}
+.mob-nav a{color:var(--muted);text-decoration:none;font-size:14px;text-transform:uppercase;padding:8px 0;border-bottom:1px solid var(--border);}
+@media(max-width:768px){
+  .nav-links,.nav-actions{display:none;}
+  .hamburger{display:flex;}
+  .form-grid{grid-template-columns:1fr;}
+  .principal-card{flex-direction:column;}
+  .id-card{width:100%;}
+  section{padding:3rem 1rem;}
+}
+</style>
+</head>
+<body>
+<canvas id="stars-canvas"></canvas>
+<div class="solar-bg">
+  <div class="orbit orbit-1"></div>
+  <div class="orbit orbit-2"><div class="planet p1"></div></div>
+  <div class="orbit orbit-3"><div class="planet p3"></div></div>
+  <div class="orbit orbit-4"><div class="planet p4"></div></div>
+  <div class="orbit orbit-5"><div class="planet p5"></div></div>
+  <div class="orbit orbit-6"><div class="planet p6"></div></div>
+  <div class="sun"></div>
+</div>
+
+<nav>
+  <a href="#home" class="nav-logo">
+    <img id="nav-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18' fill='%23c00'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-size='16' font-weight='bold'%3EA%3C/text%3E%3C/svg%3E" alt="ACC Logo">
+    <div class="nav-title">ACC SPACE &<br>ASTROPHYSICS CLUB</div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#moderators">Team</a></li>
+    <li><a href="#notices">Notices</a></li>
+    <li><a href="#register">Join</a></li>
+    <li><a href="#id-card">ID Card</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="#admin" class="btn btn-outline btn-sm">Admin</a>
+    <a href="#register" class="btn btn-gold btn-sm">Register</a>
+  </div>
+  <button class="hamburger" onclick="toggleMob()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mob-nav" id="mob-nav">
+  <a href="#home" onclick="toggleMob()">Home</a>
+  <a href="#about" onclick="toggleMob()">About</a>
+  <a href="#moderators" onclick="toggleMob()">Team</a>
+  <a href="#notices" onclick="toggleMob()">Notices</a>
+  <a href="#register" onclick="toggleMob()">Join</a>
+  <a href="#id-card" onclick="toggleMob()">ID Card</a>
+  <a href="#admin" onclick="toggleMob()">Admin</a>
+</div>
+
+<div class="page">
+
+<!-- HERO -->
+<section class="hero" id="home" style="max-width:100%;padding-top:100px;">
+  <div class="hero-badge">✦ Adamjee Cantonment College — Dhaka ✦</div>
+  <h1>Space &<br>Astrophysics Club</h1>
+  <p>Exploring the cosmos from Dhaka Cantonment. From black holes to supernovae — join us to discover the universe.</p>
+  <div class="hero-btns">
+    <a href="#register" class="btn btn-gold">Become a Member</a>
+    <a href="#about" class="btn btn-outline">Explore Club</a>
+  </div>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-num" id="cnt-members">—</div><div class="stat-label">Active Members</div></div>
+    <div class="stat"><div class="stat-num">2024</div><div class="stat-label">Established</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Stars to Explore</div></div>
+  </div>
+  <div class="college-info">
+    <img id="hero-pp" src="" style="display:none;" alt="">
+    Adamjee Cantonment College · Dhaka Cantonment · Est. 1960
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">✦ Our Mission</div>
+  <div class="section-title">Why We Reach<br>for the Stars</div>
+  <p class="section-sub">The ACC Space & Astrophysics Club brings together students passionate about the universe — hosting lectures, telescope sessions, research discussions, and science competitions.</p>
+  <div class="cards-grid">
+    <div class="card"><div class="card-icon">🔭</div><h3>Observation Nights</h3><p>Regular stargazing sessions with telescopes and expert guidance on celestial events and phenomena.</p></div>
+    <div class="card"><div class="card-icon">🚀</div><h3>Research & Projects</h3><p>Student-led astrophysics research — from exoplanet transit studies to cosmological modelling projects.</p></div>
+    <div class="card"><div class="card-icon">🌌</div><h3>Workshops & Seminars</h3><p>Guest lectures, NASA resources, and deep-dive physics workshops to strengthen astronomical knowledge.</p></div>
+    <div class="card"><div class="card-icon">🏆</div><h3>Olympiads & Competitions</h3><p>Preparing members for national and international astronomy olympiads and science fairs.</p></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PRINCIPAL -->
+<section id="principal">
+  <div class="section-label">✦ Leadership</div>
+  <div class="section-title">A Message from<br>Our Principal</div>
+  <div class="principal-card">
+    <div class="principal-img-wrap">
+      <img id="principal-photo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 168'%3E%3Crect width='140' height='168' fill='%231a3a6b' rx='8'/%3E%3Ccircle cx='70' cy='55' r='30' fill='%234080d0'/%3E%3Crect x='25' y='100' width='90' height='68' rx='8' fill='%23285090'/%3E%3C/svg%3E" alt="Principal">
+    </div>
+    <div>
+      <div class="p-title">PRINCIPAL</div>
+      <div class="p-name" id="principal-name">Adamjee Cantonment College</div>
+      <div class="p-rank" id="principal-rank">Dhaka Cantonment · Est. 1960</div>
+      <p class="p-msg" id="principal-message">"The universe is not only stranger than we imagine — it is stranger than we can imagine. I encourage every student of ACC to look up at the sky with curiosity and wonder. This club is your launchpad to the cosmos."</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- MODERATORS -->
+<section id="moderators">
+  <div class="section-label">✦ Club Team</div>
+  <div class="section-title">Moderators &<br>Executive Members</div>
+  <p class="section-sub">Meet the dedicated team running the ACC Space Club.</p>
+  <div class="mods-grid" id="mods-container">
+    <div class="loading-spinner"><div class="spinner"></div> Loading team...</div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- NOTICES -->
+<section id="notices">
+  <div class="section-label">✦ Latest Updates</div>
+  <div class="section-title">Club Notices &<br>Announcements</div>
+  <div class="notices-list" id="notices-container">
+    <div class="loading-spinner"><div class="spinner"></div> Loading notices...</div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- REGISTER -->
+<section id="register">
+  <div class="section-label">✦ Join the Club</div>
+  <div class="section-title">Member<br>Registration</div>
+  <p class="section-sub">Apply for membership. Your application will be reviewed by the admin. Upon approval you receive a digital ID card.</p>
+  <div id="reg-form-wrap" class="form-wrap">
+    <div class="form-grid">
+      <div class="form-group"><label>Full Name *</label><input id="f-name" type="text" placeholder="Your full name"></div>
+      <div class="form-group"><label>Student Roll *</label><input id="f-roll" type="text" placeholder="e.g. 202401001"></div>
+      <div class="form-group"><label>Class *</label>
+        <select id="f-class">
+          <option value="">Select class</option>
+          <option>Class 11 (Science)</option><option>Class 12 (Science)</option>
+          <option>Class 11 (Commerce)</option><option>Class 12 (Commerce)</option>
+          <option>Class 11 (Humanities)</option><option>Class 12 (Humanities)</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Section</label><input id="f-section" type="text" placeholder="e.g. A, B, C"></div>
+      <div class="form-group full"><label>Mobile Number *</label><input id="f-phone" type="tel" placeholder="01XXXXXXXXX"></div>
+      <div class="form-group full"><label>Email Address</label><input id="f-email" type="email" placeholder="your@email.com"></div>
+      <div class="form-group full"><label>Why do you want to join?</label><textarea id="f-reason" rows="3" placeholder="Tell us about your interest in space and astrophysics..."></textarea></div>
+      <div class="form-group full"><label>Any prior skills?</label><input id="f-skills" type="text" placeholder="e.g. Telescope, Python, Photography, Astrophotography"></div>
+    </div>
+    <button class="btn btn-gold" style="width:100%;margin-top:1.5rem;padding:14px;" onclick="submitReg()" id="reg-btn">✦ Submit Application</button>
+  </div>
+  <div class="success-screen" id="reg-success">
+    <div style="font-size:3rem;margin-bottom:1rem;">🚀</div>
+    <div style="font-family:'Orbitron',sans-serif;color:var(--gold);font-size:1rem;margin-bottom:0.5rem;">Application Submitted!</div>
+    <p style="color:var(--muted);font-size:14px;">Your application is pending admin approval.<br>Once approved, retrieve your digital ID card using your roll number.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ID CARD -->
+<section id="id-card">
+  <div class="section-label">✦ Digital Identity</div>
+  <div class="section-title">Member ID Card</div>
+  <p class="section-sub">Approved members can retrieve and download their digital ID card by entering their student roll number or assigned member ID.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:2.5rem;align-items:flex-start;">
+    <div class="form-wrap" style="max-width:300px;padding:1.8rem;">
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label>Roll Number or Member ID</label>
+        <input id="id-lookup" type="text" placeholder="e.g. 202401001 or ACC-SAC-001" onkeydown="if(event.key==='Enter')lookupID()">
+      </div>
+      <button class="btn btn-gold" style="width:100%;" onclick="lookupID()">🪪 Generate My ID Card</button>
+    </div>
+    <div id="id-card-display" style="display:none;flex-direction:column;gap:1rem;">
+      <div class="id-card" id="the-id-card">
+        <div class="id-hdr">
+          <img id="idc-logo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Ccircle cx='17' cy='17' r='15' fill='%23c00'/%3E%3C/svg%3E" alt="Logo">
+          <div class="id-hdr-txt">ADAMJEE CANTONMENT COLLEGE<br>SPACE & ASTROPHYSICS CLUB<br>MEMBER IDENTITY CARD</div>
+        </div>
+        <div class="id-body">
+          <div class="id-photo" id="idc-photo">🧑‍🚀</div>
+          <div>
+            <div class="id-name" id="idc-name">—</div>
+            <div class="id-mid" id="idc-mid">ACC-SAC-000</div>
+            <div class="id-row">Class: <span id="idc-class">—</span></div>
+            <div class="id-row">Section: <span id="idc-section">—</span></div>
+            <div class="id-row">Roll: <span id="idc-roll">—</span></div>
+            <div class="id-row">Phone: <span id="idc-phone">—</span></div>
+          </div>
+        </div>
+        <div class="id-ftr">
+          <div>
+            <div class="id-barcode" id="idc-barcode">ACC●SAC●000</div>
+            <div class="id-status">✔ ACTIVE MEMBER</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="id-valid">Session 2024–2025</div>
+            <div style="font-size:9px;color:var(--muted);margin-top:2px;" id="idc-joined">—</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-outline" style="width:100%;max-width:360px;" onclick="downloadID()">⬇ Download ID Card (PDF)</button>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ADMIN -->
+<section id="admin">
+  <div class="section-label">✦ Administration</div>
+  <div class="section-title">Admin Panel</div>
+  <div id="admin-login-wrap">
+    <div class="admin-wrap">
+      <div class="admin-icon">🔐</div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:1.5rem;">Authorized personnel only. Manage members, notices, and club settings.</p>
+      <div class="form-group" style="margin-bottom:1rem;"><label>Username</label><input id="adm-user" type="text" placeholder="admin"></div>
+      <div class="form-group" style="margin-bottom:1.5rem;"><label>Password</label><input id="adm-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()"></div>
+      <button class="btn btn-gold" style="width:100%;" onclick="adminLogin()">Enter Admin Panel</button>
+    </div>
+  </div>
+  <div id="admin-panel" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+      <div style="font-family:'Orbitron',sans-serif;font-size:12px;color:var(--gold);">Welcome, Admin</div>
+      <button class="btn btn-outline btn-sm" onclick="adminLogout()">Logout</button>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('t-pending',this)">Pending</button>
+      <button class="tab-btn" onclick="switchTab('t-members',this)">Members</button>
+      <button class="tab-btn" onclick="switchTab('t-notices',this)">Notices</button>
+      <button class="tab-btn" onclick="switchTab('t-mods',this)">Moderators</button>
+      <button class="tab-btn" onclick="switchTab('t-settings',this)">Settings</button>
+    </div>
+    <div id="t-pending" class="tab-content active">
+      <div id="pending-container"><div class="loading-spinner"><div class="spinner"></div>Loading...</div></div>
+    </div>
+    <div id="t-members" class="tab-content">
+      <div id="members-container"><div class="loading-spinner"><div class="spinner"></div>Loading...</div></div>
+    </div>
+    <div id="t-notices" class="tab-content">
+      <div class="form-wrap" style="margin-bottom:2rem;">
+        <h3 style="font-family:'Orbitron',sans-serif;font-size:12px;color:var(--gold);margin-bottom:1.2rem;">Post New Notice</h3>
+        <div class="form-group" style="margin-bottom:1rem;"><label>Title</label><input id="n-title" type="text" placeholder="Notice title"></div>
+        <div class="form-group" style="margin-bottom:1.2rem;"><label>Body</label><textarea id="n-body" rows="3" placeholder="Full announcement details..."></textarea></div>
+        <button class="btn btn-gold" onclick="addNotice()">Post Notice</button>
+      </div>
+      <div id="admin-notices-list"></div>
+    </div>
+    <div id="t-mods" class="tab-content">
+      <div class="form-wrap" style="margin-bottom:2rem;">
+        <h3 style="font-family:'Orbitron',sans-serif;font-size:12px;color:var(--gold);margin-bottom:1.2rem;">Add Moderator</h3>
+        <div class="form-grid" style="margin-bottom:1rem;">
+          <div class="form-group"><label>Name</label><input id="m-name" type="text" placeholder="Full name"></div>
+          <div class="form-group"><label>Role</label><input id="m-role" type="text" placeholder="e.g. President, Advisor"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:1.2rem;"><label>Photo URL (from Supabase Storage)</label><input id="m-photo" type="text" placeholder="https://kxcgjwkwpvnkovndhfev.supabase.co/storage/v1/..."></div>
+        <button class="btn btn-gold" onclick="addMod()">Add Moderator</button>
+      </div>
+      <div id="admin-mods-list"></div>
+    </div>
+    <div id="t-settings" class="tab-content">
+      <div class="form-wrap">
+        <h3 style="font-family:'Orbitron',sans-serif;font-size:12px;color:var(--gold);margin-bottom:1.2rem;">Club Settings</h3>
+        <div class="form-group" style="margin-bottom:1rem;"><label>College Logo URL</label><input id="s-logo" type="text" placeholder="Paste Supabase Storage public URL"></div>
+        <div class="form-group" style="margin-bottom:1rem;"><label>Principal Photo URL</label><input id="s-pp" type="text" placeholder="Paste Supabase Storage public URL"></div>
+        <div class="form-group" style="margin-bottom:1rem;"><label>Principal Name</label><input id="s-pname" type="text" placeholder="e.g. Brig Gen Mohammed Hossain"></div>
+        <div class="form-group" style="margin-bottom:1rem;"><label>Principal Rank / Title</label><input id="s-prank" type="text" placeholder="e.g. Commandant, Adamjee Cantonment College"></div>
+        <div class="form-group" style="margin-bottom:1.5rem;"><label>Principal's Message</label><textarea id="s-pmsg" rows="4" placeholder="Inspirational message from the principal..."></textarea></div>
+        <button class="btn btn-gold" onclick="saveSettings()">Save Settings</button>
+        <div style="margin-top:1.5rem;padding:1rem;background:rgba(79,163,224,0.06);border:1px solid var(--border);border-radius:8px;">
+          <p style="color:var(--muted);font-size:12px;line-height:1.8;">
+            <strong style="color:var(--glow);">How to upload images:</strong><br>
+            1. Go to <strong style="color:var(--gold)">Supabase Dashboard → Storage</strong><br>
+            2. Create a new bucket named <code style="color:var(--gold)">assets</code> (set to Public)<br>
+            3. Upload your logo / principal photo<br>
+            4. Click the file → Copy Public URL → paste above
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="footer-logo">★ ACC SPACE & ASTROPHYSICS CLUB ★</div>
+  <p>Adamjee Cantonment College · Dhaka Cantonment · Est. 1960</p>
+  <p style="margin-top:6px;font-size:11px;color:rgba(138,180,212,0.4);">accsacbd.netlify.app</p>
+</footer>
+<div id="toast"></div>
+
+<script>
+const SB_URL='https://kxcgjwkwpvnkovndhfev.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4Y2dqd2t3cHZua292bmRoZmV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMzM3MzcsImV4cCI6MjA5MTgwOTczN30.2tYf00CmleFUQJs3E3AVTtnx_kZdXm7CfKddkTgGPJg';
+const ADM_U='admin', ADM_P='acc@space2024';
+
+async function api(table,{method='GET',body,params='',select='*'}={}){
+  let url=`${SB_URL}/rest/v1/${table}`;
+  if(method==='GET')url+=`?select=${select}${params?'&'+params:''}`;
+  else if(params)url+=`?${params}`;
+  const r=await fetch(url,{method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':method==='PATCH'?'return=representation':''},body:body?JSON.stringify(body):undefined});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.message||r.statusText);}
+  if(r.status===204)return null;
+  return r.json();
+}
+
+// Stars
+const cv=document.getElementById('stars-canvas'),cx=cv.getContext('2d');
+let ST=[];
+function rsz(){cv.width=innerWidth;cv.height=innerHeight;}
+function initS(){ST=Array.from({length:280},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.4+0.2,a:Math.random(),s:Math.random()*0.003+0.001}));}
+function drawS(){cx.clearRect(0,0,cv.width,cv.height);ST.forEach(s=>{s.a+=s.s;if(s.a>1)s.a=0;cx.beginPath();cx.arc(s.x,s.y,s.r,0,Math.PI*2);cx.fillStyle=`rgba(180,215,255,${s.a})`;cx.fill();});requestAnimationFrame(drawS);}
+rsz();initS();drawS();addEventListener('resize',()=>{rsz();initS();});
+
+// Toast
+function toast(m,err=false){const t=document.getElementById('toast');t.textContent=m;t.className='show'+(err?' error':'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='',3500);}
+
+// Date helpers
+function fmtD(iso){if(!iso)return'—';const d=new Date(iso);return d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+d.getFullYear();}
+function fmtS(iso){if(!iso)return'—';const d=new Date(iso);return d.getDate()+'\n'+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];}
+
+// Counter
+function animN(el,n){if(!n){el.textContent='0';return;}let v=0;const s=Math.max(1,Math.floor(n/40));const t=setInterval(()=>{v=Math.min(v+s,n);el.textContent=v;if(v>=n)clearInterval(t);},30);}
+
+// Load settings
+async function loadSettings(){
+  try{
+    const d=await api('settings',{params:'id=eq.1'});
+    if(!d||!d[0])return;const s=d[0];
+    if(s.college_logo_url){document.getElementById('nav-logo').src=s.college_logo_url;document.getElementById('idc-logo').src=s.college_logo_url;}
+    if(s.principal_photo_url){document.getElementById('principal-photo').src=s.principal_photo_url;const h=document.getElementById('hero-pp');h.src=s.principal_photo_url;h.style.display='block';}
+    if(s.principal_name)document.getElementById('principal-name').textContent=s.principal_name;
+    if(s.principal_rank)document.getElementById('principal-rank').textContent=s.principal_rank;
+    if(s.principal_message)document.getElementById('principal-message').textContent='"'+s.principal_message+'"';
+    // prefill settings form
+    if(s.college_logo_url)document.getElementById('s-logo').value=s.college_logo_url;
+    if(s.principal_photo_url)document.getElementById('s-pp').value=s.principal_photo_url;
+    if(s.principal_name)document.getElementById('s-pname').value=s.principal_name;
+    if(s.principal_rank)document.getElementById('s-prank').value=s.principal_rank;
+    if(s.principal_message)document.getElementById('s-pmsg').value=s.principal_message;
+  }catch(e){console.warn('settings:',e);}
+}
+
+// Load moderators
+async function loadMods(){
+  const c=document.getElementById('mods-container');
+  try{
+    const d=await api('moderators',{params:'order=display_order.asc'});
+    if(!d||!d.length){c.innerHTML='<p style="color:var(--muted)">No team members yet.</p>';return;}
+    c.innerHTML=d.map(m=>`<div class="mod-card"><div class="mod-img">${m.photo_url?`<img src="${m.photo_url}" alt="${m.name}" onerror="this.parentElement.textContent='👤'">`:' 👤'}</div><div class="mod-name">${m.name}</div><div class="mod-role">${m.role}</div></div>`).join('');
+    const al=document.getElementById('admin-mods-list');
+    if(al)al.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;">${d.map(m=>`<div class="member-row" style="flex-direction:column;gap:8px;"><div class="member-name">${m.name}</div><div class="member-meta">${m.role}</div><button class="btn btn-danger btn-sm" style="width:fit-content;" onclick="delMod('${m.id}')">Remove</button></div>`).join('')}</div>`;
+  }catch(e){c.innerHTML='<p style="color:var(--muted);font-size:13px;">Could not load team.</p>';}
+}
+
+// Load notices
+async function loadNotices(){
+  const c=document.getElementById('notices-container');
+  try{
+    const d=await api('notices',{params:'order=created_at.desc'});
+    if(!d||!d.length){c.innerHTML='<p style="color:var(--muted);font-size:13px;">No notices yet.</p>';return;}
+    c.innerHTML=d.map(n=>`<div class="notice-item"><div class="notice-date">${fmtS(n.created_at)}</div><div><div class="notice-title">${n.title}</div><div class="notice-body">${n.body}</div></div></div>`).join('');
+    const al=document.getElementById('admin-notices-list');
+    if(al)al.innerHTML=d.map(n=>`<div class="notice-item" style="margin-bottom:.8rem;"><div class="notice-date">${fmtS(n.created_at)}</div><div style="flex:1;"><div class="notice-title">${n.title}</div><div class="notice-body">${n.body}</div></div><button class="btn btn-danger btn-sm" style="flex-shrink:0;" onclick="delNotice('${n.id}')">Delete</button></div>`).join('');
+  }catch(e){c.innerHTML='<p style="color:var(--muted);font-size:13px;">Could not load notices.</p>';}
+}
+
+// Member count
+async function loadCount(){
+  try{
+    const r=await fetch(`${SB_URL}/rest/v1/members?select=id&status=eq.approved`,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'count=exact','Range-Unit':'items','Range':'0-0'}});
+    const n=parseInt(r.headers.get('Content-Range')?.split('/')[1]||'0');
+    animN(document.getElementById('cnt-members'),n);
+  }catch(e){document.getElementById('cnt-members').textContent='0';}
+}
+
+// Registration
+async function submitReg(){
+  const name=document.getElementById('f-name').value.trim();
+  const roll=document.getElementById('f-roll').value.trim();
+  const cls=document.getElementById('f-class').value;
+  const phone=document.getElementById('f-phone').value.trim();
+  if(!name||!roll||!cls||!phone){toast('Please fill all required fields (*).','true');return;}
+  const btn=document.getElementById('reg-btn');
+  btn.textContent='Submitting…';btn.disabled=true;
+  try{
+    await api('members',{method:'POST',body:{name,roll,class:cls,section:document.getElementById('f-section').value.trim(),phone,email:document.getElementById('f-email').value.trim(),reason:document.getElementById('f-reason').value.trim(),skills:document.getElementById('f-skills').value.trim(),status:'pending'}});
+    document.getElementById('reg-form-wrap').style.display='none';
+    document.getElementById('reg-success').classList.add('show');
+    toast('Application submitted! Awaiting admin approval.');
+    loadCount();
+  }catch(e){
+    toast('Error: '+(e.message||'Could not submit. Try again.'),true);
+    btn.textContent='✦ Submit Application';btn.disabled=false;
+  }
+}
+
+// ID card lookup
+async function lookupID(){
+  const q=document.getElementById('id-lookup').value.trim();
+  if(!q){toast('Enter your roll number or member ID.',true);return;}
+  toast('Looking up…');
+  try{
+    let d=await api('members',{params:`member_id=eq.${encodeURIComponent(q)}&status=eq.approved`});
+    if(!d||!d.length)d=await api('members',{params:`roll=eq.${encodeURIComponent(q)}&status=eq.approved`});
+    if(!d||!d.length){toast('Member not found or not yet approved.',true);return;}
+    fillIDCard(d[0]);
+  }catch(e){toast('Error: '+e.message,true);}
+}
+
+function fillIDCard(m){
+  document.getElementById('idc-name').textContent=m.name;
+  document.getElementById('idc-mid').textContent=m.member_id||'—';
+  document.getElementById('idc-class').textContent=m.class||'—';
+  document.getElementById('idc-section').textContent=m.section||'N/A';
+  document.getElementById('idc-roll').textContent=m.roll||'—';
+  document.getElementById('idc-phone').textContent=m.phone||'—';
+  document.getElementById('idc-barcode').textContent=(m.member_id||'ACC-SAC-000').replace(/-/g,'●');
+  document.getElementById('idc-joined').textContent='Joined: '+fmtD(m.joined_at);
+  const d=document.getElementById('id-card-display');
+  d.style.display='flex';d.style.flexDirection='column';
+  toast('ID card ready!');
+}
+
+async function downloadID(){
+  const name=document.getElementById('idc-name').textContent;
+  const mid=document.getElementById('idc-mid').textContent;
+  if(name==='—'){toast('Generate your ID card first.',true);return;}
+  toast('Generating PDF…');
+  try{
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape',unit:'mm',format:[86,54]});
+    doc.setFillColor(5,14,32);doc.rect(0,0,86,54,'F');
+    doc.setDrawColor(240,192,64);doc.setLineWidth(0.5);doc.rect(1,1,84,52);
+    doc.setFillColor(15,30,60);doc.rect(1,1,84,10,'F');
+    doc.setTextColor(240,192,64);doc.setFontSize(5.5);doc.setFont('helvetica','bold');
+    doc.text('ADAMJEE CANTONMENT COLLEGE',43,5.5,{align:'center'});
+    doc.text('SPACE & ASTROPHYSICS CLUB  ·  MEMBER CARD',43,9,{align:'center'});
+    doc.setTextColor(255,255,255);doc.setFontSize(9);doc.text(name,5,19);
+    doc.setTextColor(79,163,224);doc.setFontSize(6.5);doc.text(mid,5,24);
+    doc.setTextColor(180,200,220);doc.setFontSize(5.5);
+    doc.text('Class: '+document.getElementById('idc-class').textContent+'   Section: '+document.getElementById('idc-section').textContent,5,30);
+    doc.text('Roll: '+document.getElementById('idc-roll').textContent,5,35);
+    doc.text('Phone: '+document.getElementById('idc-phone').textContent,5,40);
+    doc.text(document.getElementById('idc-joined').textContent,5,45);
+    doc.setTextColor(77,255,136);doc.setFontSize(5.5);doc.text('✔ ACTIVE MEMBER',5,50);
+    doc.setTextColor(240,192,64);doc.text('Session 2024-2025',81,50,{align:'right'});
+    doc.setDrawColor(30,50,90);doc.setLineWidth(0.2);doc.line(1,49,85,49);
+    doc.setTextColor(100,130,160);doc.setFontSize(4.5);
+    doc.text(document.getElementById('idc-barcode').textContent,5,53);
+    doc.save('ACC-SAC-'+mid+'.pdf');
+    toast('ID card downloaded!');
+  }catch(e){toast('PDF error: '+e.message,true);}
+}
+
+// Admin
+let adminIn=false;
+function adminLogin(){
+  if(document.getElementById('adm-user').value===ADM_U&&document.getElementById('adm-pass').value===ADM_P){
+    adminIn=true;
+    document.getElementById('admin-login-wrap').style.display='none';
+    document.getElementById('admin-panel').style.display='block';
+    loadPending();loadApproved();loadNotices();loadMods();
+    toast('Welcome, Admin!');
+  }else{toast('Invalid credentials.',true);}
+}
+function adminLogout(){
+  adminIn=false;
+  document.getElementById('admin-login-wrap').style.display='block';
+  document.getElementById('admin-panel').style.display='none';
+}
+
+async function loadPending(){
+  const c=document.getElementById('pending-container');
+  try{
+    const d=await api('members',{params:'status=eq.pending&order=joined_at.asc',select:'*'});
+    if(!d||!d.length){c.innerHTML='<p style="color:var(--muted);font-size:14px;padding:1rem 0;">No pending applications.</p>';return;}
+    c.innerHTML=d.map(m=>`<div class="member-row"><div><div class="member-name">${m.name}</div><div class="member-meta">${m.roll} · ${m.class} ${m.section||''} · ${m.phone}</div>${m.email?`<div class="member-meta">${m.email}</div>`:''} ${m.reason?`<div class="member-reason">"${m.reason}"</div>`:''} ${m.skills?`<div class="member-meta" style="margin-top:4px;">Skills: ${m.skills}</div>`:''} <div class="member-meta" style="margin-top:4px;font-size:11px;">Applied: ${fmtD(m.joined_at)}</div></div><div class="member-actions"><button class="btn btn-gold btn-sm" onclick="approve('${m.id}','${m.name.replace(/'/g,"\\'")}')">✔ Approve</button><button class="btn btn-danger btn-sm" onclick="reject('${m.id}')">✗ Reject</button></div></div>`).join('');
+  }catch(e){c.innerHTML='<p style="color:var(--muted)">Error loading applications.</p>';}
+}
+
+async function loadApproved(){
+  const c=document.getElementById('members-container');
+  try{
+    const d=await api('members',{params:'status=eq.approved&order=joined_at.desc',select:'*'});
+    if(!d||!d.length){c.innerHTML='<p style="color:var(--muted);font-size:14px;padding:1rem 0;">No approved members yet.</p>';return;}
+    c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem;">${d.map(m=>`<div class="member-row" style="flex-direction:column;gap:6px;"><div style="display:flex;justify-content:space-between;"><div class="member-name">${m.name}</div><span class="badge badge-approved">Active</span></div><div class="member-meta">${m.member_id}</div><div class="member-meta">${m.class} ${m.section||''} · ${m.roll}</div><div class="member-meta">${m.phone}</div></div>`).join('')}</div>`;
+    animN(document.getElementById('cnt-members'),d.length);
+  }catch(e){c.innerHTML='<p style="color:var(--muted)">Error loading members.</p>';}
+}
+
+async function approve(id,name){
+  try{
+    const s=await api('settings',{params:'id=eq.1',select:'next_member_seq'});
+    const seq=(s&&s[0])?s[0].next_member_seq:1001;
+    const mid='ACC-SAC-'+String(seq).padStart(3,'0');
+    await api('members',{method:'PATCH',params:'id=eq.'+id,body:{status:'approved',member_id:mid}});
+    await api('settings',{method:'PATCH',params:'id=eq.1',body:{next_member_seq:seq+1}});
+    toast(name+' approved! ID: '+mid);
+    loadPending();loadApproved();
+  }catch(e){toast('Error: '+e.message,true);}
+}
+
+async function reject(id){
+  if(!confirm('Reject this application?'))return;
+  try{
+    await api('members',{method:'PATCH',params:'id=eq.'+id,body:{status:'rejected'}});
+    toast('Application rejected.');loadPending();loadApproved();
+  }catch(e){toast('Error: '+e.message,true);}
+}
+
+async function addNotice(){
+  const t=document.getElementById('n-title').value.trim();
+  const b=document.getElementById('n-body').value.trim();
+  if(!t||!b){toast('Fill in title and body.',true);return;}
+  try{
+    await api('notices',{method:'POST',body:{title:t,body:b}});
+    document.getElementById('n-title').value='';document.getElementById('n-body').value='';
+    toast('Notice posted!');loadNotices();
+  }catch(e){toast('Error: '+e.message,true);}
+}
+
+async function delNotice(id){
+  if(!confirm('Delete this notice?'))return;
+  try{
+    await fetch(`${SB_URL}/rest/v1/notices?id=eq.${id}`,{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    toast('Notice deleted.');loadNotices();
+  }catch(e){toast('Error: '+e.message,true);}
+}
+
+async function addMod(){
+  const n=document.getElementById('m-name').value.trim();
+  const r=document.getElementById('m-role').value.trim();
+  if(!n||!r){toast('Fill in name and role.',true);return;}
+  try{
+    await api('moderators',{method:'POST',body:{name:n,role:r,photo_url:document.getElementById('m-photo').value.trim()||null,display_order:99}});
+    document.getElementById('m-name').value='';document.getElementById('m-role').value='';document.getElementById('m-photo').value='';
+    toast('Moderator added!');loadMods();
+  }catch(e){toast('Error: '+e.message,true);}
+}
+
+async function delMod(id){
+  if(!confirm('Remove this moderator?'))return;
+  try{
+    await fetch(`${SB_URL}/rest/v1/moderators?id=eq.${id}`,{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    toast('Moderator removed.');loadMods();
+  }catch(e){toast('Error: '+e.message,true);}
+}
+
+async function saveSettings(){
+  const body={};
+  const logo=document.getElementById('s-logo').value.trim();
+  const pp=document.getElementById('s-pp').value.trim();
+  const pn=document.getElementById('s-pname').value.trim();
+  const pr=document.getElementById('s-prank').value.trim();
+  const pm=document.getElementById('s-pmsg').value.trim();
+  if(logo){body.college_logo_url=logo;document.getElementById('nav-logo').src=logo;document.getElementById('idc-logo').src=logo;}
+  if(pp){body.principal_photo_url=pp;document.getElementById('principal-photo').src=pp;const h=document.getElementById('hero-pp');h.src=pp;h.style.display='block';}
+  if(pn){body.principal_name=pn;document.getElementById('principal-name').textContent=pn;}
+  if(pr){body.principal_rank=pr;document.getElementById('principal-rank').textContent=pr;}
+  if(pm){body.principal_message=pm;document.getElementById('principal-message').textContent='"'+pm+'"';}
+  try{
+    await api('settings',{method:'PATCH',params:'id=eq.1',body});
+    toast('Settings saved!');
+  }catch(e){toast('Error saving: '+e.message,true);}
+}
+
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');btn.classList.add('active');
+}
+
+function toggleMob(){document.getElementById('mob-nav').classList.toggle('open');}
+
+// Init
+loadSettings();loadMods();loadNotices();loadCount();
+</script>
+</body>
+</html>
